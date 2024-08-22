@@ -1,0 +1,47 @@
+import { LogIn } from "lucide-react";
+import { Button } from "./ui/button";
+import { useUserStore } from "@/lib/state/userStore";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import UserForm from "./UserForm";
+
+const Navbar = () => {
+  const { users } = useUserStore();
+  const isUserLoggedIn = users[0] ? true : false;
+
+  return (
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+      <h1 className="text-xl font-bold">Split Wise Lite</h1>
+      {isUserLoggedIn ? (
+        <Avatar className="ml-auto">
+          {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
+          <AvatarFallback>{users[0].name.slice(0, 4)}</AvatarFallback>
+        </Avatar>
+      ) : (
+        <div className="ml-auto">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <LogIn className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>First Time Sign Up</DialogTitle>
+              </DialogHeader>
+              <UserForm />
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
+    </header>
+  );
+};
+
+export default Navbar;
