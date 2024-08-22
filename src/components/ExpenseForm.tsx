@@ -12,10 +12,8 @@ import {
 } from "./ui/form";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Checkbox } from "./ui/checkbox";
-import { Group, useGroupStore } from "@/lib/state/groupStore";
+import { useGroupStore } from "@/lib/state/groupStore";
 import { Member, useMemberStore } from "@/lib/state/memberStore";
-import { User } from "@/lib/state/userStore";
 import {
   Currency,
   Transaction,

@@ -1,4 +1,4 @@
-import { ArrowBigUpDash, HandCoins, PlusCircle } from "lucide-react";
+import { ArrowBigUpDash, HandCoins } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import ExpenseForm from "./ExpenseForm";
-import PaymentForm from "./PaymentForm";
 
 const TransactionAction = () => {
   return (
