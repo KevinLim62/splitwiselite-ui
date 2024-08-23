@@ -12,7 +12,6 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
   transactions,
 }) => {
   const { members: friends } = useMemberStore();
-  // TODO: Implement logic to calculate total amount owed, etc.
   let memberNetAmount = group.members.map((member) => ({
     memberId: member,
     spend: 0,
@@ -24,7 +23,7 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
       const paidMember = memberNetAmount.find(
         (member) => member.memberId === transaction.paidBy.id.toString()
       );
-      paidMember!.spend += +transaction.amount;
+      paidMember!.spend += transaction.amount;
 
       memberNetAmount.forEach((member) => {
         if (
@@ -49,13 +48,13 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
   }));
 
   // Separate those who owe money from those who are owed
-  let oweList = netBalances.filter((member) => member.balance > 0);
+  let oweList = netBalances
+    .filter((member) => member.balance > 0)
+    .map((member) => ({ ...member })); // Create a shallow copy
+
   let owedList = netBalances
     .filter((member) => member.balance < 0)
-    .map((member) => ({
-      ...member,
-      balance: Math.abs(member.balance), // Make balance positive for easier calculation
-    }));
+    .map((member) => ({ ...member, balance: Math.abs(member.balance) })); // Create a shallow copy with positive balance
 
   // Sort the lists to start settling the largest amounts first
   oweList.sort((a, b) => b.balance - a.balance);
@@ -88,7 +87,25 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
 
   return (
     <div className="flex flex-col items-start gap-3">
-      <h1 className="font-bold text-base">To Settle :</h1>
+      <h1 className="font-bold text-base text-slate-800">Net balances :</h1>
+      {netBalances.map((balance, index) => (
+        <div key={index} className="text-slate-600 font-semibold">
+          {`${
+            friends.find((friend) => friend.id.toString() === balance.memberId)
+              ?.name
+          }:`}{" "}
+          <span className="underline underline-offset-3 text-lg">
+            {balance.balance.toFixed(2)}{" "}
+            {balance.balance === 0
+              ? ""
+              : balance.balance > 0
+              ? "(owes)"
+              : "(is owed)"}
+          </span>
+        </div>
+      ))}
+
+      <h1 className="font-bold text-base text-slate-800 pt-3">To Settle :</h1>
       {settlements.length > 0 ? (
         settlements.map((settlement, index) => (
           <div key={index} className="text-slate-600 font-semibold">
@@ -97,7 +114,7 @@ const TransactionSummary: React.FC<TransactionSummaryProps> = ({
                 ?.name
             } should pay`}{" "}
             <span className="underline underline-offset-1 text-lg">
-              {settlement.amount}
+              {settlement.amount.toFixed(2)}
             </span>{" "}
             {`to ${
               friends.find((friend) => friend.id.toString() === settlement.to)

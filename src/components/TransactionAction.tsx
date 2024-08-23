@@ -2,14 +2,18 @@ import { ArrowBigUpDash, HandCoins } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import ExpenseForm from "./ExpenseForm";
+import { useRef } from "react";
 
 const TransactionAction = () => {
+  const expenseFormRef = useRef<HTMLButtonElement>(null);
+
   return (
     <div className="flex items-center justify-end gap-2">
       <Dialog>
@@ -25,8 +29,12 @@ const TransactionAction = () => {
           <DialogHeader>
             <DialogTitle>Add New Expense</DialogTitle>
           </DialogHeader>
-          <ExpenseForm type="CREATE" />
+          <ExpenseForm
+            type="CREATE"
+            onClose={() => expenseFormRef.current?.click()}
+          />
         </DialogContent>
+        <DialogClose ref={expenseFormRef}></DialogClose>
       </Dialog>
       <Dialog>
         <DialogTrigger asChild>

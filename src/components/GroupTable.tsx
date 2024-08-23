@@ -17,6 +17,7 @@ import { Button } from "./ui/button";
 import { MoreVertical } from "lucide-react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -25,6 +26,7 @@ import {
 import GroupForm from "./GroupForm";
 import { useTransactionStore } from "@/lib/state/transactionStore";
 import TransactionSummary from "./TransactionSummary";
+import { useRef } from "react";
 
 const GroupTable = () => {
   return (
@@ -49,6 +51,7 @@ const GroupListing = () => {
   const activeTransactions = transactions.filter(
     (transaction) => transaction.isActive
   );
+  const groupFormRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
@@ -78,12 +81,17 @@ const GroupListing = () => {
                 <DialogHeader>
                   <DialogTitle>Edit Group</DialogTitle>
                 </DialogHeader>
-                <GroupForm type="UPDATE" initialGroupValue={group} />
+                <GroupForm
+                  type="UPDATE"
+                  initialGroupValue={group}
+                  onClose={() => groupFormRef.current?.click()}
+                />
               </DialogContent>
+              <DialogClose ref={groupFormRef}></DialogClose>
             </Dialog>
           </div>
           <CardHeader className="p-3 flex flex-col items-start">
-            <CardTitle className="text-base">{group.name}</CardTitle>
+            <CardTitle className="text-lg font-bold">{group.name}</CardTitle>
             <CardDescription>{group.description}</CardDescription>
           </CardHeader>
           <CardContent className="p-3 flex flex-col items-start">

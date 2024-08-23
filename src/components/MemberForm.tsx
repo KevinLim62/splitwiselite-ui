@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -13,6 +12,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Member, useMemberStore } from "@/lib/state/memberStore";
+import { useToast } from "./ui/use-toast";
 
 export const MemberFormSchema = z.object({
   name: z.string({
@@ -23,14 +23,16 @@ export const MemberFormSchema = z.object({
 type MemberFormProps = {
   type: "CREATE" | "UPDATE";
   initialMemberValue?: Member;
+  onClose: () => void;
 };
 
 const MemberForm: React.FC<MemberFormProps> = ({
   type,
   initialMemberValue,
+  onClose,
 }) => {
+  const { toast } = useToast();
   const { members, addMember, editMember } = useMemberStore();
-
   const form = useForm<z.infer<typeof MemberFormSchema>>({
     resolver: zodResolver(MemberFormSchema),
     defaultValues: initialMemberValue ?? {
@@ -41,7 +43,10 @@ const MemberForm: React.FC<MemberFormProps> = ({
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof MemberFormSchema>) {
     if (values.name === "") {
-      alert("Member name is required");
+      toast({
+        title: `Member name is required!`,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -65,6 +70,13 @@ const MemberForm: React.FC<MemberFormProps> = ({
       default:
         break;
     }
+
+    toast({
+      title: `Member - ${values.name} ${type.toLowerCase()} successfully !`,
+      variant: "success",
+    });
+
+    onClose();
   }
 
   return (
@@ -76,10 +88,9 @@ const MemberForm: React.FC<MemberFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="name" {...field} />
+              <FormControl className="text-base">
+                <Input placeholder="Member name" {...field} />
               </FormControl>
-              <FormDescription>This is display member name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

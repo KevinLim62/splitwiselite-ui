@@ -15,6 +15,7 @@ import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import { Group, useGroupStore } from "@/lib/state/groupStore";
 import { useMemberStore } from "@/lib/state/memberStore";
+import { useToast } from "./ui/use-toast";
 
 export const groupFormSchema = z.object({
   name: z.string({
@@ -27,9 +28,15 @@ export const groupFormSchema = z.object({
 type GroupFormProps = {
   type: "CREATE" | "UPDATE";
   initialGroupValue?: Group;
+  onClose: () => void;
 };
 
-const GroupForm: React.FC<GroupFormProps> = ({ type, initialGroupValue }) => {
+const GroupForm: React.FC<GroupFormProps> = ({
+  type,
+  initialGroupValue,
+  onClose,
+}) => {
+  const { toast } = useToast();
   const { groups, addGroup, editGroup } = useGroupStore();
   const { members: friends } = useMemberStore();
 
@@ -45,12 +52,18 @@ const GroupForm: React.FC<GroupFormProps> = ({ type, initialGroupValue }) => {
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof groupFormSchema>) {
     if (values.name === "") {
-      alert("Group name is required");
+      toast({
+        title: "Group name is required!",
+        variant: "destructive",
+      });
       return;
     }
 
     if (friends.length === 0) {
-      alert("Please select involving members");
+      toast({
+        title: "Please select involving members!",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -78,6 +91,13 @@ const GroupForm: React.FC<GroupFormProps> = ({ type, initialGroupValue }) => {
       default:
         break;
     }
+
+    toast({
+      title: `Group - ${values.name} ${type.toLowerCase()} successfully !`,
+      variant: "success",
+    });
+
+    onClose();
   }
 
   return (
@@ -89,8 +109,8 @@ const GroupForm: React.FC<GroupFormProps> = ({ type, initialGroupValue }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="name" {...field} />
+              <FormControl className="text-base">
+                <Input placeholder="Group name" {...field} />
               </FormControl>
               <FormDescription>
                 This is your display group name.
@@ -105,8 +125,8 @@ const GroupForm: React.FC<GroupFormProps> = ({ type, initialGroupValue }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input placeholder="description" {...field} />
+              <FormControl className="text-base">
+                <Input placeholder="Group description (optional)" {...field} />
               </FormControl>
               <FormDescription>
                 This is your display group description.

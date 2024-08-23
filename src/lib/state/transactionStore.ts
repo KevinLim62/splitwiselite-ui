@@ -7,6 +7,7 @@ import { Member } from "./memberStore";
 export type Currency = "USD" | "EUR" | "GBP" | "MYR";
 
 export type ExpenseSplit = {
+  name: string;
   memberId: number;
   amount: number;
 };
@@ -20,7 +21,7 @@ export type Transaction = {
   paidTo?: User | Member;
   expenseSplits?: ExpenseSplit[];
   splitMethod?: string;
-  amount: string;
+  amount: number;
   currency: Currency;
   createdAt: string;
   updatedAt: string;

@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -14,6 +13,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useUserStore } from "@/lib/state/userStore";
 import { useMemberStore } from "@/lib/state/memberStore";
+import { useToast } from "./ui/use-toast";
 
 export const UserFormSchema = z.object({
   name: z.string({
@@ -21,7 +21,8 @@ export const UserFormSchema = z.object({
   }),
 });
 
-const UserForm = () => {
+const UserForm = ({ onClose }: { onClose: () => void }) => {
+  const { toast } = useToast();
   const { users, addUser } = useUserStore();
   const { members, addMember } = useMemberStore();
   const form = useForm<z.infer<typeof UserFormSchema>>({
@@ -33,6 +34,14 @@ const UserForm = () => {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof UserFormSchema>) {
+    if (values.name === "") {
+      toast({
+        title: `User name is required!`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     addUser({
       id: users.length + 1,
       name: values.name,
@@ -44,6 +53,13 @@ const UserForm = () => {
       name: values.name,
       isActive: true,
     });
+
+    toast({
+      title: `User - ${values.name} created successfully!`,
+      variant: "success",
+    });
+
+    onClose();
   }
 
   return (
@@ -55,10 +71,9 @@ const UserForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="name" {...field} />
+              <FormControl className="text-base">
+                <Input placeholder="My name" {...field} />
               </FormControl>
-              <FormDescription>This is your display user name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

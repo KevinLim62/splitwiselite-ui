@@ -2,14 +2,17 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import MemberForm from "./MemberForm";
+import { useRef } from "react";
 
 const MemberAction = () => {
+  const memberFormRef = useRef<HTMLButtonElement>(null);
   return (
     <div className="flex items-center justify-end gap-2">
       <Dialog>
@@ -25,8 +28,12 @@ const MemberAction = () => {
           <DialogHeader>
             <DialogTitle>Add New Member</DialogTitle>
           </DialogHeader>
-          <MemberForm type="CREATE" />
+          <MemberForm
+            type="CREATE"
+            onClose={() => memberFormRef.current?.click()}
+          />
         </DialogContent>
+        <DialogClose ref={memberFormRef}></DialogClose>
       </Dialog>
     </div>
   );

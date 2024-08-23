@@ -8,6 +8,7 @@ import {
 } from "./ui/card";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -22,6 +23,7 @@ import {
 import { Button } from "./ui/button";
 import { MoreVertical } from "lucide-react";
 import MemberForm from "./MemberForm";
+import { useRef } from "react";
 
 const MemberTable = () => {
   return (
@@ -42,6 +44,7 @@ export default MemberTable;
 const MemberListing = () => {
   const { members, deleteMember } = useMemberStore();
   const activeMembers = members.filter((members) => members.isActive);
+  const memberFormRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
@@ -71,8 +74,13 @@ const MemberListing = () => {
                 <DialogHeader>
                   <DialogTitle>Edit Member</DialogTitle>
                 </DialogHeader>
-                <MemberForm type="UPDATE" initialMemberValue={member} />
+                <MemberForm
+                  type="UPDATE"
+                  initialMemberValue={member}
+                  onClose={() => memberFormRef.current?.click()}
+                />
               </DialogContent>
+              <DialogClose ref={memberFormRef}></DialogClose>
             </Dialog>
           </div>
           <CardHeader className="p-3 flex flex-col items-start">

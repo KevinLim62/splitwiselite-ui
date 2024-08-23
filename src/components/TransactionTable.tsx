@@ -8,6 +8,7 @@ import {
 } from "./ui/card";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -23,6 +24,7 @@ import { Button } from "./ui/button";
 import { MoreVertical } from "lucide-react";
 import ExpenseForm from "./ExpenseForm";
 import PaymentForm from "./PaymentForm";
+import { useRef } from "react";
 
 const TransactionTable = () => {
   return (
@@ -45,6 +47,7 @@ const TransactionListing = () => {
   const activeTransactions = transactions.filter(
     (transactions) => transactions.isActive
   );
+  const transactionFormRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
@@ -80,6 +83,7 @@ const TransactionListing = () => {
                   <ExpenseForm
                     type="UPDATE"
                     initialExpenseValue={transaction}
+                    onClose={() => transactionFormRef.current?.click()}
                   />
                 )}
                 {transaction.type === "PAYMENT" && (
@@ -89,6 +93,7 @@ const TransactionListing = () => {
                   />
                 )}
               </DialogContent>
+              <DialogClose ref={transactionFormRef}></DialogClose>
             </Dialog>
           </div>
           <CardHeader className="p-3 flex flex-col items-start">
@@ -120,6 +125,20 @@ const TransactionListing = () => {
                   </span>
                 </div>
               )}
+              {transaction?.expenseSplits &&
+                transaction.expenseSplits.length > 0 && (
+                  <div className="p-2 text-base font-medium">
+                    Expense split breakdown ({transaction.currency}):
+                    {transaction.expenseSplits.map((split) => (
+                      <div
+                        key={split.memberId}
+                        className="text-slate-700 font-normal"
+                      >
+                        {split.name}: {split.amount.toFixed(2)}
+                      </div>
+                    ))}
+                  </div>
+                )}
               <div>{new Date(transaction.createdAt).toDateString()}</div>
             </CardDescription>
           </CardHeader>

@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { currencyCodes } from "@/lib/utils";
 
 export const expenseFormSchema = z.object({
   description: z.string({
@@ -35,7 +35,7 @@ export const expenseFormSchema = z.object({
   groupId: z.string({ required_error: "Group Id is required" }),
   paidById: z.string({ required_error: "Paid By Id is required" }),
   paidToId: z.string({ required_error: "Paid By Id is required" }),
-  amount: z.string({ required_error: "Amount is required" }),
+  amount: z.number({ required_error: "Amount is required" }),
   currency: z.custom<Currency>(),
 });
 
@@ -65,7 +65,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       groupId: "",
       paidById: "",
       paidToId: "",
-      amount: "0",
+      amount: 0,
       currency: "GBP",
     },
   });
@@ -94,7 +94,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       return;
     }
 
-    if (parseFloat(values.amount) < 0) {
+    if (values.amount < 0) {
       alert("Amount should not be negative.");
       return;
     }
@@ -140,10 +140,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input placeholder="description" {...field} />
+              <FormControl className="text-base">
+                <Input placeholder="Payment description" {...field} />
               </FormControl>
-              <FormDescription>This is expense description.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -154,7 +153,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <FormControl>
+              <FormControl className="text-base">
                 <Input disabled placeholder="type" {...field} />
               </FormControl>
               <FormMessage />
@@ -173,18 +172,24 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select involving group" />
+                    <SelectValue
+                      className="text-base"
+                      placeholder="Select involving group"
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {activeGroups.map((group) => (
-                    <SelectItem key={group.id} value={group.id.toString()}>
+                    <SelectItem
+                      key={group.id}
+                      value={group.id.toString()}
+                      className="text-base"
+                    >
                       {group.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>This is expense involved group.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -201,18 +206,24 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select involving member" />
+                    <SelectValue
+                      placeholder="Select involving member"
+                      className="text-base"
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {activeMembers.map((member) => (
-                    <SelectItem key={member.id} value={member.id.toString()}>
+                    <SelectItem
+                      key={member.id}
+                      value={member.id.toString()}
+                      className="text-base"
+                    >
                       {member.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>This expense is paid by</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -229,18 +240,24 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select involving member" />
+                    <SelectValue
+                      placeholder="Select involving member"
+                      className="text-base"
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {activeMembers.map((member) => (
-                    <SelectItem key={member.id} value={member.id.toString()}>
+                    <SelectItem
+                      key={member.id}
+                      value={member.id.toString()}
+                      className="text-base"
+                    >
                       {member.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>This expense is paid to</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -251,10 +268,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Amount</FormLabel>
-              <FormControl>
+              <FormControl className="text-base">
                 <Input placeholder={"0"} type="number" {...field} />
               </FormControl>
-              <FormDescription>This is expense amount.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -271,18 +287,24 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select involving group" />
+                    <SelectValue
+                      placeholder="Select currency"
+                      className="text-base"
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {["USD", "EUR", "GBP", "MYR"].map((currency) => (
-                    <SelectItem key={currency} value={currency}>
+                  {currencyCodes.map((currency) => (
+                    <SelectItem
+                      key={currency}
+                      value={currency}
+                      className="text-base"
+                    >
                       {currency}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>This is expense currency.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

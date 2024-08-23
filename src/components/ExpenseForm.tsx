@@ -27,6 +27,9 @@ import {
   SelectValue,
 } from "./ui/select";
 import { useEffect, useState } from "react";
+import { Checkbox } from "./ui/checkbox";
+import { useToast } from "./ui/use-toast";
+import { currencyCodes } from "@/lib/utils";
 
 export const expenseFormSchema = z.object({
   description: z.string({
@@ -36,20 +39,24 @@ export const expenseFormSchema = z.object({
   groupId: z.string({ required_error: "Group Id is required" }),
   paidById: z.string({ required_error: "Paid By Id is required" }),
   expenseSplits: z.array(z.any()),
+  equalSplits: z.array(z.string()),
   splitMethod: z.string().default("1"),
-  amount: z.string({ required_error: "Amount is required" }),
+  amount: z.coerce.number({ required_error: "Amount is required" }).min(0),
   currency: z.custom<Currency>(),
 });
 
 type ExpenseFormProps = {
   type: "CREATE" | "UPDATE";
   initialExpenseValue?: Transaction;
+  onClose: () => void;
 };
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({
   type,
   initialExpenseValue,
+  onClose,
 }) => {
+  const { toast } = useToast();
   const { transactions, addTransaction, editTransaction } =
     useTransactionStore();
 
@@ -71,7 +78,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       paidById: "",
       splitMethod: "1",
       expenseSplits: [],
-      amount: "0",
+      equalSplits: [],
+      amount: 0,
       currency: "GBP",
     },
   });
@@ -88,42 +96,58 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     );
 
     if (!selectedGroup || !selectedPaidBy) {
-      alert("Invalid group or paid by selected. Please check and try again.");
+      toast({
+        title: "Invalid group or paid by selected. Please check and try again",
+        variant: "destructive",
+      });
       return;
     }
 
-    if (parseFloat(values.amount) < 0) {
-      alert("Amount should not be negative.");
+    if (values.amount < 0) {
+      toast({
+        title: "Amount should not be negative.",
+        variant: "destructive",
+      });
       return;
     }
 
     let formattedExpenseSplits;
     if (splitMethod === "1" && selectedGroupMembers) {
       //Equally split the expense amount
+      const splitAmount = values.amount / values.equalSplits.length;
+
       formattedExpenseSplits = selectedGroupMembers.map((member) => ({
         memberId: member.id,
-        amount: Math.round(
-          parseFloat(values.amount) / selectedGroupMembers.length
-        ),
+        name: member.name,
+        amount: values.equalSplits.includes(member.id.toString())
+          ? splitAmount
+          : 0,
       }));
     } else if (splitMethod === "2" && selectedGroupMembers) {
       let amount = 0;
       for (let index = 0; index < values.expenseSplits.length; index++) {
         amount += parseFloat(values.expenseSplits[index].amount);
-        if (amount > parseFloat(values.amount)) {
-          alert("Total split amount should not exceed the expense amount.");
+        if (amount > values.amount) {
+          toast({
+            title: "Total split amount should not exceed the expense amount.",
+            variant: "destructive",
+          });
           return;
         }
       }
 
-      if (amount !== parseFloat(values.amount)) {
-        alert("Total split amount should be equal to the expense amount.");
+      if (amount !== values.amount) {
+        toast({
+          title: "Total split amount should be equal to the expense amount.",
+          variant: "destructive",
+        });
         return;
       }
 
       //Custom split the expense amount
       formattedExpenseSplits = values.expenseSplits.map((expense, index) => ({
         memberId: members[index].id,
+        name: members[index].name,
         amount: parseFloat(expense.amount),
       }));
     }
@@ -160,6 +184,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       default:
         break;
     }
+
+    toast({
+      title: `Expense ${type.toLowerCase()} successfully !`,
+      variant: "success",
+    });
+
+    onClose();
   }
 
   useEffect(() => {
@@ -185,27 +216,26 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input placeholder="description" {...field} />
+              <FormControl className="text-base">
+                <Input placeholder="Expense description" {...field} />
               </FormControl>
-              <FormDescription>This is expense description.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="type"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <FormControl>
+              <FormControl className="text-base">
                 <Input disabled placeholder="type" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         <FormField
           control={form.control}
           name="groupId"
@@ -218,18 +248,24 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select involving group" />
+                    <SelectValue
+                      placeholder="Select involving group"
+                      className="text-base"
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {activeGroups.map((group) => (
-                    <SelectItem key={group.id} value={group.id.toString()}>
+                    <SelectItem
+                      key={group.id}
+                      value={group.id.toString()}
+                      className="text-base"
+                    >
                       {group.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>This is expense involved group.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -247,18 +283,24 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select involving member" />
+                      <SelectValue
+                        placeholder="Select involving member"
+                        className="text-base"
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {selectedGroupMembers.map((member) => (
-                      <SelectItem key={member.id} value={member.id.toString()}>
+                      <SelectItem
+                        key={member.id}
+                        value={member.id.toString()}
+                        className="text-base"
+                      >
                         {member.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>This expense is paid by</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -270,10 +312,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Amount</FormLabel>
-              <FormControl>
-                <Input placeholder={"0"} type="number" {...field} />
+              <FormControl className="text-base">
+                <Input type="number" placeholder="0" {...field} />
               </FormControl>
-              <FormDescription>This is expense amount.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -290,18 +331,25 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select involving group" />
+                    <SelectValue
+                      placeholder="Select currency"
+                      className="text-base"
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {["USD", "EUR", "GBP", "MYR"].map((currency) => (
-                    <SelectItem key={currency} value={currency}>
+                  {/* TODO Currency */}
+                  {currencyCodes.map((currency) => (
+                    <SelectItem
+                      key={currency}
+                      value={currency}
+                      className="text-base"
+                    >
                       {currency}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>This is expense currency.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -311,15 +359,60 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           <Select value={splitMethod} onValueChange={setSplitMethod}>
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="How would you like to split the expense" />
+                <SelectValue
+                  placeholder="How would you like to split the expense"
+                  className="text-base"
+                />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="1">Equaly among members</SelectItem>
-              <SelectItem value="2">Custom split</SelectItem>
+              <SelectItem className="text-base" value="1">
+                Equally among selected members
+              </SelectItem>
+              <SelectItem className="text-base" value="2">
+                Custom
+              </SelectItem>
             </SelectContent>
           </Select>
         </FormItem>
+        {splitMethod === "1" && (
+          <div className="space-y-2">
+            <h1>Select members to split equally</h1>
+            {activeMembers.map((member) => (
+              <FormField
+                key={member.id}
+                control={form.control}
+                name="equalSplits"
+                render={({ field }) => {
+                  return (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl className="text-base">
+                        <Checkbox
+                          checked={field.value?.includes(member.id.toString())}
+                          onCheckedChange={(checked) => {
+                            return checked
+                              ? field.onChange([
+                                  ...field.value,
+                                  member.id.toString(),
+                                ])
+                              : field.onChange(
+                                  field.value?.filter(
+                                    (value) => value !== member.id.toString()
+                                  )
+                                );
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        {member.name}
+                      </FormLabel>
+                    </FormItem>
+                  );
+                }}
+              />
+            ))}
+          </div>
+        )}
         {splitMethod === "2" && (
           <div className="space-y-2">
             {activeMembers.map((member, index) => (
@@ -330,7 +423,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs">{member.name}</FormLabel>
-                    <FormControl>
+                    <FormControl className="text-base">
                       <Input placeholder="0" {...field} />
                     </FormControl>
                     <FormDescription className="text-xs">
