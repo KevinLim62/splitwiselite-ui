@@ -8,6 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export const currencyCodes = [
   "USD", // United States Dollar
   "EUR", // Euro
+  "CZK",
   "GBP", // British Pound Sterling
   "AUD", // Australian Dollar
   "CAD", // Canadian Dollar
