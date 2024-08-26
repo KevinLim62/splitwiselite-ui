@@ -378,7 +378,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         {splitMethod === "1" && (
           <div className="space-y-2">
             <h1>Select members to split equally</h1>
-            {activeMembers.map((member) => (
+            {selectedGroupMembers && selectedGroupMembers.map((member) => (
               <FormField
                 key={member.id}
                 control={form.control}
