@@ -3,8 +3,9 @@ import { persist } from "zustand/middleware";
 import { Group } from "./groupStore";
 import { User } from "./userStore";
 import { Member } from "./memberStore";
+import { currencyCodes } from "../utils";
 
-export type Currency = "USD" | "EUR" | "GBP" | "MYR";
+export type Currency = (typeof currencyCodes)[number];
 
 export type ExpenseSplit = {
   name: string;

@@ -19,7 +19,7 @@ const Navbar = () => {
   const userFormRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 py-2 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
       <h1 className="text-xl font-bold flex gap-2 items-center">
         <CircleDollarSign width="20" height="20" /> Split Wise Lite
       </h1>

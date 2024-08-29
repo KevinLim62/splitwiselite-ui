@@ -34,4 +34,4 @@ export const currencyCodes = [
   "SAR", // Saudi Riyal
   "AED", // United Arab Emirates Dirham
   "ILS", // Israeli New Shekel
-];
+] as const;
