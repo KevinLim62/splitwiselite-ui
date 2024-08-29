@@ -1,7 +1,6 @@
 import { Group } from "@/lib/state/groupStore";
 import { useMemberStore } from "@/lib/state/memberStore";
-import { Currency, Transaction } from "@/lib/state/transactionStore";
-import { Checkbox } from "./ui/checkbox";
+import { Transaction } from "@/lib/state/transactionStore";
 
 type TransactionSummaryProps = {
   group: Group;
